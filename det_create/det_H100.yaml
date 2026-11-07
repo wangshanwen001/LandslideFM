@@ -1,0 +1,33 @@
+name: LandslideFM
+description: LandslideFM
+workspace: wangshanwen
+project: LandslideFM
+resources:
+#  resource_pool: 4090_device   A10040G_NVLINK_device  H10080G_device  A10080G_device 
+  resource_pool: H10080G_device
+  slots_per_trial: 1
+  max_slots: 1
+# NOTE: do NOT bind-mount /home/wangshanwen/server_data/... here.
+# That path only exists on eg540-a6000, while trials are scheduled onto the
+# H10080G_device pool (a different agent host). Docker resolves host_path on the
+# agent host, so an unavailable path aborts container creation for EVERY
+# entrypoint. Only cluster-wide shared paths (below) are safe to mount.
+bind_mounts:
+  - host_path: /home/fds-admin/determinedai_files
+    container_path: /home/fds-admin/determinedai_files
+  - host_path: /home/fds-admin/user_files
+    container_path: /home/fds-admin/user_files
+environment:
+  force_pull_image: true
+  image: 100.74.185.9:80/landslidefm/landslidefm:latest
+  registry_auth:
+    username: wangshanwen
+    password: Fds00000000
+    serveraddress: 100.74.185.9:80
+searcher:
+  name: single
+  metric: accuracy
+entrypoint:
+    sh scripts/test_landslide_Qwen3_8B.sh 1 29501 
+    #sh scripts/train_gvlm_1.sh 1 29501 
+    #sh scripts/train_pot_1_100.sh 1 29501011
